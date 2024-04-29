@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
+from src.knn_grid import KnnGrid
 from hash_grid import HashGrid
 from rand_grid import RandGrid
 from tcnn_grid import TCNNGrid
@@ -16,14 +17,14 @@ class Model(nn.Module):
         super().__init__()
 
         # self.grid = RandGrid(input_dim=2)
-        self.grid = HashGrid(input_dim=2)
+        self.grid = KnnGrid(2, input_dim=2)
         # self.grid = TCNNGrid(input_dim=2)
         self.mlp = nn.Sequential(
             nn.Linear(self.grid.output_dim, 128),
             nn.ReLU(),
             nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Linear(128, 1)
+            nn.Linear(128, 1),
         )
 
     def forward(self, x):
@@ -36,10 +37,10 @@ if __name__ == "__main__":
 
     # params
     num_epochs = 1000
-    batch_size = 2 ** 14
+    batch_size = 2**14
 
     # prepare img
-    img = Image.open('albert.jpg')
+    img = Image.open("albert.jpg")
     img = torch.from_numpy(np.array(img) / 255.0).float()
 
     # prepare model
@@ -66,8 +67,12 @@ if __name__ == "__main__":
         p2 = img[yi[:, 0], xi[:, 1]]
         p3 = img[yi[:, 0], yi[:, 1]]
 
-        res = p0 * yf[:, 0] * yf[:, 1] + p1 * yf[:, 0] * xf[:, 1] + \
-            p2 * xf[:, 0] * yf[:, 1] + p3 * xf[:, 0] * xf[:, 1]
+        res = (
+            p0 * yf[:, 0] * yf[:, 1]
+            + p1 * yf[:, 0] * xf[:, 1]
+            + p2 * xf[:, 0] * yf[:, 1]
+            + p3 * xf[:, 0] * xf[:, 1]
+        )
 
         x, y = x.cuda(), res.reshape(-1, 1).cuda()
         pred = model(x)
@@ -87,10 +92,9 @@ if __name__ == "__main__":
     y = (np.arange(res[0], dtype=np.float32) + 0.5) / res[0]
     x, y = np.meshgrid(x, y)
 
-    input = torch.tensor(
-        np.stack([x, y], axis=-1).reshape(-1, 2)).cuda()
+    input = torch.tensor(np.stack([x, y], axis=-1).reshape(-1, 2)).cuda()
     pred = model(input).cpu().detach().numpy().reshape(res)
     pred = pred.transpose(1, 0)
 
     img = Image.fromarray((pred * 255).astype(np.uint8))
-    img.save('out.jpg')
+    img.save("out.jpg")
