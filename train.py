@@ -36,7 +36,7 @@ class Model(nn.Module):
 if __name__ == "__main__":
 
     # params
-    num_epochs = 1000
+    num_epochs = 10000
     batch_size = 2**14
 
     # prepare img

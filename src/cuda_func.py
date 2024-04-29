@@ -50,5 +50,4 @@ def knn(xi, xf, k):
     check_tensor(xi, torch.int64)
     check_tensor(xf, torch.float32)
 
-    neigs, ws = cuda_imp.knn(xi, xf, k)
-    return neigs, ws
+    return cuda_imp.knn(xi, xf, k)

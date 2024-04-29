@@ -36,7 +36,7 @@ class KnnGrid(nn.Module):
         self.base_resolution = base_resolution
         self.log2_hashmap_size = log2_hashmap_size
 
-        self.output_dim = num_levels * (input_dim * (k + 1) + k)
+        self.output_dim = num_levels * (input_dim * (k + 1))
         self.max_params = 2**log2_hashmap_size
 
         # allocate memory for embeddings
@@ -83,7 +83,7 @@ class KnnGrid(nn.Module):
             xi = x.long()
             xf = x - xi.float().detach()
 
-            neigs, w = knn(xi, xf, self.k)
+            neigs = knn(xi, xf, self.k)
 
             offset = 0 if i == 0 else self.offsets[i - 1]
             params_in_level = self.offsets[i] - offset
@@ -91,7 +91,7 @@ class KnnGrid(nn.Module):
             neigs_features = self.embeddings[hash_ids]
             neigs_features = neigs_features.view(neigs_features.shape[0], -1)
 
-            output.append(torch.cat([neigs_features, w, xf], dim=-1))
+            output.append(torch.cat([neigs_features, xf], dim=-1))
 
         return torch.cat(output, dim=-1)
 
