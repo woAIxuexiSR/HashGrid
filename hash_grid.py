@@ -52,7 +52,7 @@ class HashGrid(nn.Module):
         self.register_buffer('bin_mask', bin_mask)
 
         primes = torch.tensor(
-            [1, 2654435761, 805459861, 3674653429, 2097192037, 1434869437, 2165219737], dtype=torch.int64)
+            [1, 2654435761, 805459861, 3674653429, 2097192037, 1434869437, 2165219737, 122420729, 163227661, 217636919, 290182597], dtype=torch.int64)
         self.register_buffer('primes', primes)
 
     def fast_hash(self, ind, hash_size):

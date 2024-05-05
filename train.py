@@ -5,7 +5,7 @@ import numpy as np
 from src.knn_grid import KnnGrid
 from hash_grid import HashGrid
 from rand_grid import RandGrid
-from tcnn_grid import TCNNGrid
+# from tcnn_grid import TCNNGrid
 
 from PIL import Image
 from tqdm import tqdm
@@ -16,8 +16,9 @@ class Model(nn.Module):
     def __init__(self):
         super().__init__()
 
+        self.grid = HashGrid(input_dim=2)
         # self.grid = RandGrid(input_dim=2)
-        self.grid = KnnGrid(2, input_dim=2)
+        # self.grid = KnnGrid(2, input_dim=2)
         # self.grid = TCNNGrid(input_dim=2)
         self.mlp = nn.Sequential(
             nn.Linear(self.grid.output_dim, 128),
@@ -36,7 +37,7 @@ class Model(nn.Module):
 if __name__ == "__main__":
 
     # params
-    num_epochs = 10000
+    num_epochs = 1000
     batch_size = 2**14
 
     # prepare img

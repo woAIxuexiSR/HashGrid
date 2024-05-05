@@ -25,7 +25,7 @@ class RandGrid(nn.Module):
         self.base_resolution = base_resolution
         self.log2_hashmap_size = log2_hashmap_size
 
-        self.output_dim = num_levels * (level_dim + input_dim * 2)
+        self.output_dim = num_levels * (level_dim + input_dim) + input_dim
         self.max_params = 2 ** log2_hashmap_size
 
         # allocate memory for embeddings
@@ -46,7 +46,7 @@ class RandGrid(nn.Module):
         torch.nn.init.xavier_uniform_(self.embeddings)
 
         primes = torch.tensor(
-            [1, 2654435761, 805459861, 3674653429, 2097192037, 1434869437, 2165219737], dtype=torch.int64)
+            [1, 2654435761, 805459861, 3674653429, 2097192037, 1434869437, 2165219737, 122420729, 163227661, 217636919, 290182597], dtype=torch.int64)
         self.register_buffer('primes', primes)
 
     def fast_hash(self, ind, hash_size):
@@ -83,7 +83,8 @@ class RandGrid(nn.Module):
             neigs_features = self.embeddings[hash_ids]
             
             w = torch.where(bin_mask, xf, 1 - xf)
-            output.append(torch.cat([neigs_features, w, xf], dim=-1))
+            output.append(torch.cat([neigs_features, w], dim=-1))
+        output.append(inputs)
 
         return torch.cat(output, dim=-1)
 
